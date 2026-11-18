@@ -876,6 +876,8 @@ lbool Solver::solve_()
         // Extend & copy model:
         model.growTo(nVars());
         for (int i = 0; i < nVars(); i++) model[i] = value(i);
+
+    // not conflict clause, rather conflict assumptions
     }else if (status == l_False && conflict.size() == 0)
         ok = false;
 
@@ -950,6 +952,9 @@ void Solver::toDimacs(FILE* f, const vec<Lit>& assumps)
 {
     // Handle case when solver is in contradictory state:
     if (!ok){
+        // p cnf 1 2 => means this cnf (Conjunctive Normal Form) has 1 var and 2 clauses
+        // 1 0 => x_1 (0 represents the ending of a clause)
+        // -1 0 => neg(x_1) (0 represents the ending of a clause)
         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
         return; }
 
