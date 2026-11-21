@@ -716,6 +716,11 @@ lbool Solver::search(int nof_conflicts)
 
             learnt_clause.clear();
             analyze(confl, learnt_clause, backtrack_level);
+
+            // TODO: turn off the below logging
+            printf("[conflict] count=%llu level=%d learnt_size=%d backtrack=%d\n",
+                (unsigned long long) conflicts, decisionLevel(), learnt_clause.size(), backtrack_level);
+
             cancelUntil(backtrack_level);
 
             if (learnt_clause.size() == 1){
