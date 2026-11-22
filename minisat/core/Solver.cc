@@ -275,6 +275,20 @@ Lit Solver::pickBranchLit()
         return mkLit(next, polarity[next]);
 }
 
+void Solver::analyze(CRef confl, vec<Lit>& out_learnt, int& out_btlevel, RL::Action action) {
+    switch (action) {
+        case RL::Action::FirstUIP:
+            analyzeFirstUIP(confl, out_learnt, out_btlevel);
+            return;
+        case RL::Action::AlternativeCut:
+            //TODO: Replace with the second cut algo. Currently still using 1UIP
+            analyzeFirstUIP(confl, out_learnt, out_btlevel);
+            return;
+        default:
+            assert(false && "Invalid RL cut action");
+            return;
+    }
+}
 
 /*_________________________________________________________________________________________________
 |
@@ -293,7 +307,7 @@ Lit Solver::pickBranchLit()
 |        rest of literals. There may be others from the same level though.
 |  
 |________________________________________________________________________________________________@*/
-void Solver::analyze(CRef confl, vec<Lit>& out_learnt, int& out_btlevel)
+void Solver::analyzeFirstUIP(CRef confl, vec<Lit>& out_learnt, int& out_btlevel)
 {
     int pathC = 0;
     Lit p     = lit_Undef;
@@ -715,7 +729,11 @@ lbool Solver::search(int nof_conflicts)
             if (decisionLevel() == 0) return l_False;
 
             learnt_clause.clear();
-            analyze(confl, learnt_clause, backtrack_level);
+
+            // TODO: replace with qAgent.selectAction(state) after state extraction is implemented
+            // should be something like const RL::Action action = qAgent.selectAction(state); where state is some info extracted here
+            const RL::Action action = RL::Action::FirstUIP;
+            analyze(confl, learnt_clause, backtrack_level, action);
 
             // TODO: turn off the below logging
             printf("[conflict] count=%llu level=%d learnt_size=%d backtrack=%d\n",

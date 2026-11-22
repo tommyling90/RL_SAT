@@ -27,6 +27,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "minisat/mtl/IntMap.h"
 #include "minisat/utils/Options.h"
 #include "minisat/core/SolverTypes.h"
+#include "minisat/rl/RLTypes.h"
 
 
 namespace Minisat {
@@ -245,7 +246,11 @@ protected:
     bool     enqueue          (Lit p, CRef from = CRef_Undef);                         // Test if fact 'p' contradicts current state, enqueue otherwise.
     CRef     propagate        ();                                                      // Perform unit propagation. Returns possibly conflicting clause.
     void     cancelUntil      (int level);                                             // Backtrack until a certain level.
-    void     analyze          (CRef confl, vec<Lit>& out_learnt, int& out_btlevel);    // (bt = backtrack)
+    // dispatcher: choose the analyze type according to RL action
+    void     analyze          (CRef confl, vec<Lit>& out_learnt, int& out_btlevel, RL::Action action);    // (bt = backtrack)
+    // original analyze in MiniSAT
+    void     analyzeFirstUIP  (CRef confl, vec<Lit>& out_learnt, int& out_btlevel);
+    // TODO: add the second algo, should have the same out (out_learnt, out_learnt[0], out_btlevel)
     void     analyzeFinal     (Lit p, LSet& out_conflict);                             // COULD THIS BE IMPLEMENTED BY THE ORDINARIY "analyze" BY SOME REASONABLE GENERALIZATION?
     bool     litRedundant     (Lit p);                                                 // (helper method for 'analyze()')
     lbool    search           (int nof_conflicts);                                     // Search for a given number of conflicts.
